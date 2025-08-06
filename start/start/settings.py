@@ -34,7 +34,9 @@ SECRET_KEY = 'django-insecure-#ni318mjfgvb1l!*8@5bo#=^62xkk!^k$7wcxa7%$&%+1bd(7-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['portfolio-2-omqg.onrender.com']
+# ALLOWED_HOSTS = ['portfolio-2-omqg.onrender.com']
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+
 
 
 
@@ -138,10 +140,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'muhileshkumarwork@gmail.com'          # <-- Your Gmail
-EMAIL_HOST_PASSWORD = 'Mk@72004'        # <-- Gmail App Password
+EMAIL_HOST_USER = 'muhileshkumarwork@gmail.com'
+EMAIL_HOST_PASSWORD = 'pdxyczspqsafxfol'
+

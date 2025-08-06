@@ -27,6 +27,8 @@
         }
     });
 
+    
+
 
     // Typed Initiate
     if ($('.typed-text-output').length == 1) {

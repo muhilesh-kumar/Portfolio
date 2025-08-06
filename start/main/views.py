@@ -1,39 +1,21 @@
 from django.shortcuts import render, redirect
-from django.contrib import messages
+from django.http import JsonResponse
 from django.core.mail import send_mail
-from django.contrib.auth.models import User
-from .models import UserProfile, Education, Experience, Project, ProjectCategory, Skill, ContactRequest
+from django.contrib import messages
+from .models import UserProfile, Project, ProjectCategory, Skill
 from .forms import ContactForm
+from django.conf import settings
+
 
 def home(request):
-    # Always fetch the first (or specific) profile
     profile = UserProfile.objects.first()
     educations = profile.educations.all() if profile else []
     experiences = profile.experiences.all() if profile else []
-
     projects = Project.objects.all()
     categories = ProjectCategory.objects.all()
-    skills = Skill.objects.all().order_by('name')  # Fetch all skills
+    skills = Skill.objects.all().order_by('name')
 
-    # Contact form handling
-    if request.method == "POST":
-        form = ContactForm(request.POST)
-        if form.is_valid():
-            contact = form.save()
-
-            # Send email to you
-            send_mail(
-                subject=f"Portfolio Contact: {contact.subject}",
-                message=f"Name: {contact.name}\nEmail: {contact.email}\n\nMessage:\n{contact.message}",
-                from_email=contact.email,
-                recipient_list=['muhileshkumarwork@gmail.com'],  # <-- Replace with your email
-                fail_silently=False,
-            )
-
-            messages.success(request, "Your message has been sent successfully!")
-            return redirect('home')  # Avoid duplicate form submissions
-    else:
-        form = ContactForm()
+    form = ContactForm()  # just to render form on homepage
 
     context = {
         'user_profile': profile,
@@ -42,6 +24,48 @@ def home(request):
         'projects': projects,
         'project_categories': categories,
         'skills': skills,
-        'form': form,  # Pass form to template
+        'form': form,
+    }
+    return render(request, 'home.html', context)
+
+
+def contact_form(request):
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            contact = form.save()
+            try:
+                send_mail(
+                    subject=f"Portfolio Contact: {contact.subject}",
+                    message=f"From: {contact.name}\nEmail: {contact.email}\n\n{contact.message}",
+                    from_email=settings.EMAIL_HOST_USER,  # Use the configured email
+                    recipient_list=[settings.EMAIL_HOST_USER],  # Send to yourself
+                    fail_silently=False,
+                )
+                messages.success(request, "Your message has been sent successfully!")
+            except Exception as e:
+                messages.error(request, f"Failed to send email: {e}")
+            return redirect('home')
+        else:
+            messages.error(request, "Please correct the errors in the form.")
+    else:
+        form = ContactForm()
+
+    # Render home again with errors if form is invalid
+    profile = UserProfile.objects.first()
+    educations = profile.educations.all() if profile else []
+    experiences = profile.experiences.all() if profile else []
+    projects = Project.objects.all()
+    categories = ProjectCategory.objects.all()
+    skills = Skill.objects.all().order_by('name')
+
+    context = {
+        'user_profile': profile,
+        'educations': educations,
+        'experiences': experiences,
+        'projects': projects,
+        'project_categories': categories,
+        'skills': skills,
+        'form': form,
     }
     return render(request, 'home.html', context)
